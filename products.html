@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Products - Smart Fruit Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .page-products .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .products-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        .products-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .products-hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body class="page-products">
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🍎</span>
+                <span class="logo-text">Smart Fruit Store</span>
+            </a>
+            <nav class="navigation">
+                <a href="index.html" class="nav-link">🏠 Home</a>
+                <a href="products.html" class="nav-link active">🍇 Products</a>
+                <a href="orders.html" class="nav-link">📦 Orders</a>
+                <a href="about.html" class="nav-link">ℹ️ About</a>
+            </nav>
+            <div class="header-actions">
+                <div class="cart-icon" onclick="toggleCart()">
+                    🛒
+                    <span class="cart-count" id="cartCount">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Hero -->
+    <section class="products-hero">
+        <h1>🍇 All Products</h1>
+        <p>Browse all our fresh fruits, pay with FRT tokens</p>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Filter Section -->
+        <section class="filter-section">
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterProducts('all')">All</button>
+                <button class="filter-btn" onclick="filterProducts('seasonal')">🍓 Seasonal</button>
+                <button class="filter-btn" onclick="filterProducts('organic')">🥝 Organic</button>
+                <button class="filter-btn" onclick="filterProducts('imported')">🍍 Imported</button>
+                <button class="filter-btn" onclick="filterProducts('gift')">🎁 Gift Boxes</button>
+            </div>
+            <div class="search-box-large">
+                <input type="text" placeholder="Search fruits by name or supplier..." id="searchInput" onkeypress="if(event.key==='Enter') searchProducts()">
+                <button class="search-btn-large" onclick="searchProducts()">🔍 Search</button>
+            </div>
+        </section>
+
+        <!-- Product List -->
+        <section class="products-section">
+            <div class="products-grid" id="productsGrid">
+                <!-- Products rendered by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Gas Fee Notice -->
+        <section class="fee-notice-section">
+            <div class="fee-notice">
+                <h3>⛽ Gas Fee Notice</h3>
+                <p>Each transaction includes a <strong>10% gas fee</strong> to cover blockchain network costs.</p>
+                <p>Gas fees are automatically calculated and displayed at checkout.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>🛒 My Cart</h3>
+            <button class="close-cart" onclick="toggleCart()">×</button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <p class="empty-cart">Your cart is empty</p>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Subtotal:</span>
+                <span class="total-amount" id="cartTotal">0 FRT</span>
+            </div>
+            <div class="cart-fee">
+                <span>Gas Fee (10%):</span>
+                <span class="fee-amount" id="cartFee">0 FRT</span>
+            </div>
+            <div class="cart-grand-total">
+                <span>Total:</span>
+                <span class="grand-total-amount" id="cartGrandTotal">0 FRT</span>
+            </div>
+            <a href="checkout.html" class="checkout-btn">💳 Checkout</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>🍎 Smart Fruit Store</h4>
+                <p>Decentralized fruit marketplace on Base Sepolia testnet</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="products.html">All Products</a>
+                <a href="orders.html">My Orders</a>
+                <a href="about.html">About Us</a>
+            </div>
+            <div class="footer-section">
+                <h4>Smart Contract</h4>
+                <a href="https://sepolia.basescan.org" target="_blank">Block Explorer</a>
+                <a href="contracts/FruitStore.sol">Contract Source</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Smart Fruit Store. Powered by Base & Web3</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script src="js/contract.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            updateCartDisplay();
+        });
+
+        function filterProducts(category) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            const grid = document.getElementById('productsGrid');
+            let filtered = category === 'all' ? products : products.filter(p => p.category === category);
+            
+            grid.innerHTML = filtered.map(product => `
+                <div class="product-card">
+                    <div class="product-image" onclick="viewProduct(${product.id})">${product.image}</div>
+                    <div class="product-info">
+                        <div class="product-category">${getCategoryName(product.category)}</div>
+                        <h3 class="product-name" onclick="viewProduct(${product.id})">${product.name}</h3>
+                        <p class="product-supplier">${product.supplier}</p>
+                        <div class="product-footer">
+                            <span class="product-price">${product.price.toFixed(2)} FRT</span>
+                            <span class="product-stock ${product.stock < 50 ? 'stock-low' : ''}">
+                                ${product.stock > 0 ? `${product.stock} in stock` : 'Out of Stock'}
+                            </span>
+                        </div>
+                        <div class="product-actions">
+                            <button class="add-to-cart-btn" onclick="addToCart(${product.id})">
+                                🛒 Add to Cart
+                            </button>
+                            <button class="buy-now-btn" onclick="buyNow(${product.id})">
+                                ⚡ Buy Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function searchProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const grid = document.getElementById('productsGrid');
+            
+            if (!query) {
+                filterProducts('all');
+                return;
+            }
+            
+            const filtered = products.filter(p => 
+                p.name.toLowerCase().includes(query) || 
+                p.supplier.toLowerCase().includes(query)
+            );
+            
+            grid.innerHTML = filtered.map(product => `
+                <div class="product-card">
+                    <div class="product-image">${product.image}</div>
+                    <div class="product-info">
+                        <div class="product-category">${getCategoryName(product.category)}</div>
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-supplier">${product.supplier}</p>
+                        <div class="product-footer">
+                            <span class="product-price">${product.price.toFixed(2)} FRT</span>
+                            <span class="product-stock">${product.stock} in stock</span>
+                        </div>
+                        <div class="product-actions">
+                            <button class="add-to-cart-btn" onclick="addToCart(${product.id})">Add to Cart</button>
+                            <button class="buy-now-btn" onclick="buyNow(${product.id})">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

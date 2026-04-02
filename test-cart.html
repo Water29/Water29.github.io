@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>购物车测试 - 智能水果店</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 2rem; }
+        .test-section { margin: 2rem 0; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; }
+        button { padding: 0.5rem 1rem; margin: 0.25rem; cursor: pointer; }
+        .success { background: #4CAF50; color: white; }
+        .error { background: #f44336; color: white; }
+        pre { background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto; }
+        .log { font-family: monospace; font-size: 0.875rem; }
+    </style>
+</head>
+<body>
+    <h1>🧪 购物车调试工具</h1>
+    
+    <div class="test-section">
+        <h2>1️⃣ 购物车数据</h2>
+        <button onclick="showCart()">显示购物车</button>
+        <button onclick="clearCart()">清空购物车</button>
+        <button onclick="addTestItems()">添加测试商品</button>
+        <pre id="cartDisplay" class="log">点击"显示购物车"查看</pre>
+    </div>
+
+    <div class="test-section">
+        <h2>2️⃣ localStorage 检查</h2>
+        <button onclick="checkLocalStorage()">检查 localStorage</button>
+        <pre id="storageDisplay" class="log">点击"检查 localStorage"查看</pre>
+    </div>
+
+    <div class="test-section">
+        <h2>3️⃣ 页面跳转测试</h2>
+        <button onclick="window.location.href='products.html'">去产品页</button>
+        <button onclick="window.location.href='checkout.html'">去结算页</button>
+        <button onclick="window.location.href='index.html'">去首页</button>
+    </div>
+
+    <div class="test-section">
+        <h2>4️⃣ 控制台日志</h2>
+        <pre id="consoleLog" class="log">日志将显示在这里...</pre>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // 重定向 console.log
+        const originalLog = console.log;
+        const logElement = document.getElementById('consoleLog');
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            originalLog.apply(console, arguments);
+        }
+
+        // 显示购物车
+        function showCart() {
+            log('显示购物车数据...');
+            const cartDisplay = document.getElementById('cartDisplay');
+            if (cart.length === 0) {
+                cartDisplay.textContent = '购物车是空的';
+                log('❌ 购物车是空的');
+            } else {
+                cartDisplay.textContent = JSON.stringify(cart, null, 2);
+                log(`✅ 购物车有 ${cart.length} 件商品`);
+                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                log(`💰 总计：${total.toFixed(2)} FRT`);
+            }
+        }
+
+        // 清空购物车
+        function clearCart() {
+            log('清空购物车...');
+            cart = [];
+            saveCart();
+            showCart();
+            checkLocalStorage();
+        }
+
+        // 添加测试商品
+        function addTestItems() {
+            log('添加测试商品...');
+            cart = [
+                { id: 1, name: '有机红富士苹果', price: 2.5, quantity: 2, image: '🍎' },
+                { id: 2, name: '进口香蕉', price: 1.8, quantity: 1, image: '🍌' }
+            ];
+            saveCart();
+            showCart();
+            checkLocalStorage();
+            log('✅ 测试商品已添加');
+        }
+
+        // 检查 localStorage
+        function checkLocalStorage() {
+            log('检查 localStorage...');
+            const storageDisplay = document.getElementById('storageDisplay');
+            const cartData = localStorage.getItem('fruitStoreCart');
+            
+            if (!cartData) {
+                storageDisplay.textContent = 'fruitStoreCart: (不存在)';
+                log('❌ localStorage 中没有购物车数据');
+            } else {
+                try {
+                    const parsed = JSON.parse(cartData);
+                    storageDisplay.textContent = `fruitStoreCart:\n${cartData}`;
+                    log(`✅ localStorage 中有 ${parsed.length} 件商品`);
+                } catch (e) {
+                    storageDisplay.textContent = `fruitStoreCart: (解析错误) ${cartData}`;
+                    log('❌ localStorage 数据解析失败');
+                }
+            }
+        }
+
+        // 页面加载时自动检查
+        window.addEventListener('load', () => {
+            log('页面加载完成');
+            log('检查购物车数据...');
+            
+            // 加载购物车
+            loadCart();
+            log(`loadCart() 执行完成，cart 长度：${cart.length}`);
+            
+            checkLocalStorage();
+            showCart();
+        });
+    </script>
+</body>
+</html>

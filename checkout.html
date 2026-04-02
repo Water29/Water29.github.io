@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Smart Fruit Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .page-checkout .header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        .checkout-hero {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .checkout-hero h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .checkout-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 2rem;
+        }
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        .order-section, .payment-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #eee;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        .item-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .item-image {
+            font-size: 2rem;
+        }
+        .item-info h4 {
+            margin: 0;
+            font-size: 1rem;
+        }
+        .item-info p {
+            margin: 0.25rem 0 0;
+            color: #666;
+            font-size: 0.875rem;
+        }
+        .item-right {
+            text-align: right;
+        }
+        .item-price {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .price-summary {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+        }
+        .price-row.fee {
+            color: #ff9800;
+        }
+        .price-row.total {
+            font-size: 1.25rem;
+            font-weight: bold;
+            border-top: 2px solid #ddd;
+            margin-top: 0.5rem;
+            padding-top: 0.75rem;
+            color: #11998e;
+        }
+        .notice-card {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .notice-card h4 {
+            margin: 0 0 0.5rem;
+            color: #856404;
+        }
+        .notice-card p {
+            margin: 0;
+            color: #856404;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #ddd;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        .step.active .step-number {
+            background: #11998e;
+            color: white;
+        }
+        .step.completed .step-number {
+            background: #10b981;
+            color: white;
+        }
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .success-modal {
+            background: white;
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            max-width: 500px;
+            margin: 1rem;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .success-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+        }
+        .tx-hash {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            word-break: break-all;
+            margin: 1rem 0;
+            border: 1px solid #ddd;
+        }
+        .pay-btn {
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+        .pay-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
+        }
+        .pay-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .contract-info {
+            background: #e8f5e9;
+            border: 1px solid #4CAF50;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .contract-info h4 {
+            margin: 0 0 0.5rem;
+            color: #2e7d32;
+            font-size: 0.9rem;
+        }
+        .contract-info p {
+            margin: 0;
+            color: #2e7d32;
+            font-size: 0.75rem;
+            line-height: 1.6;
+        }
+        .contract-info code {
+            background: rgba(46, 125, 50, 0.1);
+            padding: 0.125rem 0.25rem;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .processing-state {
+            text-align: center;
+            padding: 2rem;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #11998e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .progress-steps {
+            margin-top: 1.5rem;
+        }
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            opacity: 0.5;
+        }
+        .progress-step.active {
+            opacity: 1;
+        }
+        .progress-step.completed {
+            opacity: 1;
+        }
+        .progress-step.completed .step-icon {
+            background: #10b981;
+        }
+        .progress-step.active .step-icon {
+            background: #11998e;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .step-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ddd;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+        .step-text {
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body class="page-checkout">
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🍎</span>
+                <span class="logo-text">Smart Fruit Store</span>
+            </a>
+            <nav class="navigation">
+                <a href="index.html" class="nav-link">🏠 Home</a>
+                <a href="products.html" class="nav-link">🍇 Products</a>
+                <a href="orders.html" class="nav-link">📦 Orders</a>
+                <a href="about.html" class="nav-link">ℹ️ About</a>
+            </nav>
+            <div class="header-actions">
+                <div class="cart-icon" onclick="toggleCart()">
+                    🛒
+                    <span class="cart-count" id="cartCount">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Hero -->
+    <section class="checkout-hero">
+        <h1>💳 Checkout</h1>
+        <p>Secure & Fast Simulated Payment</p>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="checkout-container">
+            <!-- Left: Order Details -->
+            <div class="order-section">
+                <h2 class="section-title">📋 Order Details</h2>
+                <div id="orderItems">
+                    <!-- Order items rendered by JavaScript -->
+                </div>
+                
+                <div class="price-summary">
+                    <div class="price-row">
+                        <span>Subtotal</span>
+                        <span id="subtotal">0 FRT</span>
+                    </div>
+                    <div class="price-row fee">
+                        <span>⛽ Gas Fee (10%)</span>
+                        <span id="gasFee">0 FRT</span>
+                    </div>
+                    <div class="price-row total">
+                        <span>Total</span>
+                        <span id="total">0 FRT</span>
+                    </div>
+                </div>
+
+                <div class="notice-card" style="margin-top: 1rem;">
+                    <h4>ℹ️ Demo Mode</h4>
+                    <p>
+                        This is a simulated payment demo. No real wallet or cryptocurrency required.<br>
+                        Click "Confirm Payment" to simulate a complete blockchain transaction.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right: Payment Section -->
+            <div class="payment-section">
+                <h2 class="section-title">💰 Payment</h2>
+                
+                <!-- Step Indicator -->
+                <div class="step-indicator">
+                    <div class="step completed">
+                        <div class="step-number">✓</div>
+                        <span>Cart</span>
+                    </div>
+                    <div class="step active">
+                        <div class="step-number">2</div>
+                        <span>Payment</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <span>Complete</span>
+                    </div>
+                </div>
+
+                <!-- Payment Button -->
+                <button class="pay-btn" id="payBtn" onclick="processPayment()" disabled>
+                    💰 Confirm Payment
+                </button>
+
+                <!-- Processing State (hidden initially) -->
+                <div id="processingState" class="processing-state" style="display: none;">
+                    <div class="spinner"></div>
+                    <p style="font-weight: 500; margin-bottom: 0.5rem;">Processing Transaction...</p>
+                    <p style="color: #666; font-size: 0.875rem;">Please wait, simulating blockchain confirmation</p>
+                    
+                    <div class="progress-steps">
+                        <div class="progress-step" id="step1">
+                            <div class="step-icon">1</div>
+                            <div class="step-text">Validating Order</div>
+                        </div>
+                        <div class="progress-step" id="step2">
+                            <div class="step-icon">2</div>
+                            <div class="step-text">Reducing Stock</div>
+                        </div>
+                        <div class="progress-step" id="step3">
+                            <div class="step-icon">3</div>
+                            <div class="step-text">Generating TX Hash</div>
+                        </div>
+                        <div class="progress-step" id="step4">
+                            <div class="step-icon">4</div>
+                            <div class="step-text">Blockchain Confirmation</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contract Info -->
+                <div class="contract-info">
+                    <h4>📜 Smart Contract Info</h4>
+                    <p>
+                        <strong>Contract Address:</strong><br>
+                        <code>0xDC605ba6B29321F50e49966B0e9A4770FAc00058</code><br>
+                        <strong>Network:</strong> Base Sepolia Testnet<br>
+                        <strong>Token:</strong> FRT (ERC-20)<br>
+                        <strong>Project Wallet:</strong><br>
+                        <code>0xDC605ba6B29321F50e49966B0e9A4770FAc00058</code>
+                    </p>
+                </div>
+
+                <div class="notice-card" style="margin-top: 1rem; background: #e3f2fd; border-color: #2196F3;">
+                    <h4 style="color: #1565C0;">🔒 Security Notice</h4>
+                    <p style="color: #1565C0;">
+                        This demo does not connect to the real blockchain.<br>
+                        All transactions are simulated and randomly generated.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Overlay -->
+    <div id="successOverlay" class="success-overlay" style="display: none;">
+        <div class="success-modal">
+            <div class="success-icon">✅</div>
+            <h2 style="margin-bottom: 0.5rem;">Payment Successful!</h2>
+            <p style="color: #666; margin-bottom: 1.5rem;">Your order has been confirmed and recorded</p>
+            
+            <div style="text-align: left; background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: #666;">Order Status:</span>
+                    <span style="color: #10b981; font-weight: 500;">✅ Completed</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: #666;">Amount Paid:</span>
+                    <span style="color: #11998e; font-weight: 500;" id="successAmount">0 FRT</span>
+                </div>
+                <div style="margin-top: 0.75rem;">
+                    <span style="color: #666; font-size: 0.875rem;">Transaction Hash:</span>
+                    <div class="tx-hash" id="txHash">0x...</div>
+                </div>
+            </div>
+            
+            <a href="https://sepolia.basescan.org/tx/0x..." target="_blank" class="btn btn-secondary" id="viewTxBtn" style="display: inline-block; margin-bottom: 1rem; font-size: 0.875rem; padding: 0.5rem 1rem;">
+                🔗 View on Block Explorer
+            </a>
+            
+            <div>
+                <a href="orders.html" class="btn btn-secondary" style="display: inline-block; margin: 0.5rem; padding: 0.75rem 1.5rem;">
+                    📦 View Orders
+                </a>
+                <a href="products.html" class="btn btn-primary" style="display: inline-block; margin: 0.5rem; padding: 0.75rem 1.5rem; background: #11998e;">
+                    🛒 Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/contract.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCart();
+            renderOrderSummary();
+            updateCartDisplay();
+        });
+
+        function renderOrderSummary() {
+            const orderItems = document.getElementById('orderItems');
+            const subtotalEl = document.getElementById('subtotal');
+            const gasFeeEl = document.getElementById('gasFee');
+            const totalEl = document.getElementById('total');
+            const payBtn = document.getElementById('payBtn');
+            
+            if (!orderItems || !subtotalEl || !gasFeeEl || !totalEl) {
+                console.error('Order summary elements not found');
+                return;
+            }
+            
+            if (cart.length === 0) {
+                orderItems.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #666;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🛒</div>
+                        <p>Your cart is empty</p>
+                        <a href="products.html" class="btn btn-primary" style="display: inline-block; margin-top: 1rem;">Start Shopping</a>
+                    </div>
+                `;
+                subtotalEl.textContent = '0.00 FRT';
+                gasFeeEl.textContent = '0.00 FRT';
+                totalEl.textContent = '0.00 FRT';
+                payBtn.disabled = true;
+                payBtn.textContent = '🔒 Cart is Empty';
+                return;
+            }
+
+            orderItems.innerHTML = cart.map(item => `
+                <div class="order-item">
+                    <div class="item-left">
+                        <div class="item-image">${item.image}</div>
+                        <div class="item-info">
+                            <h4>${item.name}</h4>
+                            <p>Qty: ${item.quantity}</p>
+                        </div>
+                    </div>
+                    <div class="item-right">
+                        <div class="item-price">${(item.price * item.quantity).toFixed(2)} FRT</div>
+                    </div>
+                </div>
+            `).join('');
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const gasFee = subtotal * 0.1;
+            const total = subtotal + gasFee;
+
+            subtotalEl.textContent = `${subtotal.toFixed(2)} FRT`;
+            gasFeeEl.textContent = `${gasFee.toFixed(2)} FRT`;
+            totalEl.textContent = `${total.toFixed(2)} FRT`;
+            
+            payBtn.disabled = false;
+            payBtn.innerHTML = '💰 Confirm Payment';
+        }
+
+        async function processPayment() {
+            if (cart.length === 0) {
+                alert('Your cart is empty');
+                return;
+            }
+
+            const payBtn = document.getElementById('payBtn');
+            payBtn.style.display = 'none';
+            document.getElementById('processingState').style.display = 'block';
+
+            try {
+                await delay(800);
+                document.getElementById('step1').classList.add('active', 'completed');
+
+                reduceStock();
+                await delay(800);
+                document.getElementById('step2').classList.add('active', 'completed');
+
+                const txHash = generateTxHash();
+                await delay(800);
+                document.getElementById('step3').classList.add('active', 'completed');
+
+                await delay(1000);
+                document.getElementById('step4').classList.add('active', 'completed');
+
+                const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const total = subtotal + (subtotal * 0.1);
+                showSuccess(txHash, total);
+
+                cart = [];
+                saveCart();
+
+            } catch (error) {
+                console.error('Payment failed:', error);
+                alert('Payment failed: ' + error.message);
+                payBtn.style.display = 'block';
+                payBtn.disabled = false;
+                payBtn.innerHTML = '💰 Confirm Payment';
+                document.getElementById('processingState').style.display = 'none';
+            }
+        }
+
+        function reduceStock() {
+            cart.forEach(cartItem => {
+                const product = products.find(p => p.id === cartItem.id);
+                if (product && product.stock >= cartItem.quantity) {
+                    product.stock -= cartItem.quantity;
+                    console.log(`Stock reduced: ${product.name} -${cartItem.quantity} (remaining: ${product.stock})`);
+                }
+            });
+            
+            if (typeof saveProducts === 'function') {
+                saveProducts();
+            }
+        }
+
+        function generateTxHash() {
+            const chars = '0123456789abcdef';
+            let hash = '0x';
+            for (let i = 0; i < 64; i++) {
+                hash += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return hash;
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function showSuccess(txHash, total) {
+            document.getElementById('successOverlay').style.display = 'flex';
+            document.getElementById('txHash').textContent = txHash;
+            document.getElementById('successAmount').textContent = `${total.toFixed(2)} FRT`;
+            document.getElementById('viewTxBtn').href = `https://sepolia.basescan.org/tx/${txHash}`;
+        }
+    </script>
+</body>
+</html>

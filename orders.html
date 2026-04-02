@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Smart Fruit Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .page-orders .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .orders-hero {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        .orders-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .order-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #4CAF50;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 1rem;
+        }
+        .order-id {
+            font-family: monospace;
+            color: #666;
+            font-size: 0.875rem;
+        }
+        .order-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .status-completed {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .status-pending {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        .status-failed {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .order-items {
+            margin-bottom: 1rem;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+        }
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .empty-orders {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #666;
+        }
+        .empty-orders-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="page-orders">
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🍎</span>
+                <span class="logo-text">Smart Fruit Store</span>
+            </a>
+            <nav class="navigation">
+                <a href="index.html" class="nav-link">🏠 Home</a>
+                <a href="products.html" class="nav-link">🍇 Products</a>
+                <a href="orders.html" class="nav-link active">📦 Orders</a>
+                <a href="about.html" class="nav-link">ℹ️ About</a>
+            </nav>
+            <div class="header-actions">
+                <div class="cart-icon" onclick="toggleCart()">
+                    🛒
+                    <span class="cart-count" id="cartCount">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Hero -->
+    <section class="orders-hero">
+        <h1>📦 My Orders</h1>
+        <p>View your blockchain transaction history</p>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="orders-container" id="ordersContainer">
+            <!-- Orders rendered by JavaScript -->
+        </div>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>🛒 My Cart</h3>
+            <button class="close-cart" onclick="toggleCart()">×</button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <p class="empty-cart">Your cart is empty</p>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Subtotal:</span>
+                <span class="total-amount" id="cartTotal">0 FRT</span>
+            </div>
+            <div class="cart-fee">
+                <span>Gas Fee (10%):</span>
+                <span class="fee-amount" id="cartFee">0 FRT</span>
+            </div>
+            <div class="cart-grand-total">
+                <span>Total:</span>
+                <span class="grand-total-amount" id="cartGrandTotal">0 FRT</span>
+            </div>
+            <a href="checkout.html" class="checkout-btn">💳 Checkout</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>🍎 Smart Fruit Store</h4>
+                <p>Decentralized fruit marketplace on Base Sepolia testnet</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="products.html">All Products</a>
+                <a href="orders.html">My Orders</a>
+                <a href="about.html">About Us</a>
+            </div>
+            <div class="footer-section">
+                <h4>Smart Contract</h4>
+                <a href="https://sepolia.basescan.org" target="_blank">Block Explorer</a>
+                <a href="contracts/FruitStore.sol">Contract Source</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Smart Fruit Store. Powered by Base & Web3</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script src="js/contract.js"></script>
+    <script>
+        const mockOrders = [
+            {
+                id: '1',
+                txHash: '0x1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890',
+                status: 'completed',
+                timestamp: new Date('2026-04-01 14:30:00'),
+                items: [
+                    { name: 'Organic Red Fuji Apple', quantity: 2, price: 2.5 },
+                    { name: 'Imported Banana', quantity: 3, price: 1.8 }
+                ],
+                subtotal: 10.4,
+                fee: 1.04,
+                total: 11.44
+            },
+            {
+                id: '2',
+                txHash: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+                status: 'completed',
+                timestamp: new Date('2026-03-30 10:15:00'),
+                items: [
+                    { name: 'Fresh Strawberry', quantity: 1, price: 5.0 }
+                ],
+                subtotal: 5.0,
+                fee: 0.5,
+                total: 5.5
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderOrders();
+            updateCartDisplay();
+        });
+
+        function renderOrders() {
+            const container = document.getElementById('ordersContainer');
+            
+            if (mockOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-orders">
+                        <div class="empty-orders-icon">📦</div>
+                        <h2>No Orders Yet</h2>
+                        <p>Start shopping for fresh fruits!</p>
+                        <a href="products.html" class="btn btn-primary" style="display: inline-block; margin-top: 1rem;">Start Shopping</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = mockOrders.map(order => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <strong>Order #${order.id}</strong>
+                            <div class="order-id">${order.txHash.substring(0, 20)}...${order.txHash.substring(44)}</div>
+                            <div style="font-size: 0.875rem; color: #666; margin-top: 0.25rem;">
+                                ${order.timestamp.toLocaleString('en-US')}
+                            </div>
+                        </div>
+                        <span class="order-status status-${order.status}">
+                            ${order.status === 'completed' ? '✅ Completed' : order.status === 'pending' ? '⏳ Processing' : '❌ Failed'}
+                        </span>
+                    </div>
+                    <div class="order-items">
+                        ${order.items.map(item => `
+                            <div class="order-item">
+                                <span>${item.name} × ${item.quantity}</span>
+                                <span>${(item.price * item.quantity).toFixed(2)} FRT</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="order-total">
+                        <div>
+                            <div>Subtotal: ${order.subtotal.toFixed(2)} FRT</div>
+                            <div style="font-size: 0.875rem; color: #666;">Gas Fee (10%): ${order.fee.toFixed(2)} FRT</div>
+                        </div>
+                        <div style="font-size: 1.25rem; color: #4CAF50;">
+                            Total: ${order.total.toFixed(2)} FRT
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem; text-align: right;">
+                        <a href="https://sepolia.basescan.org/tx/${order.txHash}" target="_blank" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">
+                            🔗 View on Block Explorer
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
